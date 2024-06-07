@@ -71,7 +71,6 @@ async function deleteEntry(entryId: number): Promise<void> {
   const req = {
     method: 'DELETE',
     headers: {
-      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
   };
@@ -97,7 +96,13 @@ export async function readEntries(): Promise<Entry[]> {
 }
 
 export async function readEntry(entryId: number): Promise<Entry | undefined> {
-  const response = await fetch(`/api/entries/${entryId}`);
+  const token = readToken();
+  const req = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const response = await fetch(`/api/entries/${entryId}`, req);
   if (response.ok !== true) {
     throw new Error('fetch error');
   }
