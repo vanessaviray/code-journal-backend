@@ -11,6 +11,12 @@ export function NavBar() {
               <Link to="/" className="entries-link white-text">
                 <h3>Entries</h3>
               </Link>
+              <Link to="/sign-up" className="entries-link white-text">
+                <h3>Sign Up</h3>
+              </Link>
+              <Link to="/sign-in" className="entries-link white-text">
+                <h3>Sign In</h3>
+              </Link>
             </div>
           </div>
         </div>
