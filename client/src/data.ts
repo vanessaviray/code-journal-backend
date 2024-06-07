@@ -1,3 +1,27 @@
+import { User } from './components/UserContext';
+
+const authKey = 'um.auth';
+
+export function saveAuth(user: User, token: string): void {
+  sessionStorage.setItem(authKey, JSON.stringify({ user, token }));
+}
+
+export function removeAuth(): void {
+  sessionStorage.removeItem(authKey);
+}
+
+export function readUser(): User | undefined {
+  const auth = sessionStorage.getItem(authKey);
+  if (!auth) return undefined;
+  return JSON.parse(auth).user;
+}
+
+export function readToken(): string | undefined {
+  const auth = sessionStorage.getItem(authKey);
+  if (!auth) return undefined;
+  return JSON.parse(auth).token;
+}
+
 export type Entry = {
   entryId?: number;
   title: string;
@@ -6,14 +30,17 @@ export type Entry = {
 };
 
 async function writeEntry(entry: Entry): Promise<Entry> {
+  const token = readToken();
   const body = entry;
-  const response = await fetch(`/api/products/${entry.entryId}`, {
+  const req = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(body),
-  });
+  };
+  const response = await fetch(`/api/entries`, req);
   if (response.ok !== true) {
     throw new Error('fetch error');
   }
@@ -21,14 +48,18 @@ async function writeEntry(entry: Entry): Promise<Entry> {
 }
 
 async function putEntry(entry: Entry): Promise<Entry> {
+  const token = readToken();
   const body = entry;
-  const response = await fetch(`/api/products/${entry.entryId}`, {
+  const req = {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(body),
-  });
+  };
+
+  const response = await fetch(`/api/entries/${entry.entryId}`, req);
   if (response.ok !== true) {
     throw new Error('fetch error');
   }
@@ -36,12 +67,15 @@ async function putEntry(entry: Entry): Promise<Entry> {
 }
 
 async function deleteEntry(entryId: number): Promise<void> {
-  const response = await fetch(`/api/products/${entryId}`, {
+  const token = readToken();
+  const req = {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
     },
-  });
+  };
+  const response = await fetch(`/api/entries/${entryId}`, req);
   if (response.ok !== true) {
     throw new Error('fetch error');
   }
@@ -49,7 +83,13 @@ async function deleteEntry(entryId: number): Promise<void> {
 }
 
 export async function readEntries(): Promise<Entry[]> {
-  const response = await fetch('/api/entries');
+  const token = readToken();
+  const req = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const response = await fetch('/api/entries', req);
   if (response.ok !== true) {
     throw new Error('fetch error');
   }
@@ -57,7 +97,7 @@ export async function readEntries(): Promise<Entry[]> {
 }
 
 export async function readEntry(entryId: number): Promise<Entry | undefined> {
-  const response = await fetch(`/api/products/${entryId}`);
+  const response = await fetch(`/api/entries/${entryId}`);
   if (response.ok !== true) {
     throw new Error('fetch error');
   }
