@@ -30,6 +30,7 @@ export function UserProvider({ children }: Props) {
     setUser(user);
     setToken(token);
     saveAuth(user, token);
+    console.log('in the context:', user, token);
   }
 
   function handleSignOut() {
